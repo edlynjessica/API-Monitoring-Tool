@@ -6,42 +6,6 @@ from src.models.endpoint import Endpoint
 from src.dependencies import get_db
 from src.repositories import check_repository
 
-
-@pytest.fixture
-def db():
-    db_generator = get_db()
-    db = next(db_generator)
-    try:
-        yield db
-    finally:
-        db_generator.close()
-
-
-@pytest.fixture
-def test_endpoint(db):
-    user = User(
-        name="Test User",
-        email=f"{uuid.uuid4()}@test.com"
-    )
-    db.add(user)
-    db.commit()
-    db.refresh(user)
-
-    endpoint = Endpoint(
-        user_id=user.id,
-        name="Test API",
-        url="https://example.com"
-    )
-    db.add(endpoint)
-    db.commit()
-    db.refresh(endpoint)
-
-    yield endpoint
-
-    db.delete(user)
-    db.commit()
-
-
 def test_create_check(db, test_endpoint):
     check = check_repository.create_check(
         db=db,
